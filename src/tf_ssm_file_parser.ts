@@ -8,8 +8,8 @@ export interface SSMKeyInFile {
   Offset: number;
 }
 
-export function extractSSMKeysFromFile(fileString: string): SSMKeyInFile[] {
-  const [ast] = parseHcl(fileString);
+export function extractSSMKeysFromFile(document: string): SSMKeyInFile[] {
+  const [ast] = parseHcl(document);
   return ast.Node.Items
     .filter(filterAWSSSMParameterKey)
     .map(mapAWSSSMKey);
