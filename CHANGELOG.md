@@ -5,7 +5,6 @@ Bug fixes:
 
 Features:
 - Add `terraform init` command to run in the current document working directory.
-- Edit confirmation for `Edit SSM Key` command.
 
 # 0.1.0
 Initial version.

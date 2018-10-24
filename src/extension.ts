@@ -11,7 +11,39 @@ const documentSelector: vscode.DocumentSelector = [
 ];
 
 export function activate(context: vscode.ExtensionContext) {
-  let editSSMKeyCmd = vscode.commands.registerCommand('extension.editSSMKey', async (ssmKeyPath) => {
+  let editSSMKeyCmd = createEditSSMKeyCmd(context);
+  let switchAWSProfileCmd = createSwitchAWSProfileCmd(context); 
+  let executeTerraformInitCmd = createTerraformInitCmd(context);
+  context.subscriptions.push(vscode.languages.registerCodeLensProvider(documentSelector, new SSMKeyCodeLensProvider(context)));
+  context.subscriptions.push(switchAWSProfileCmd, editSSMKeyCmd, executeTerraformInitCmd);
+}
+
+export function deactivate() {
+}
+
+function createTerraformInitCmd(context) {
+  return vscode.commands.registerCommand('extension.executeTerraformInit', async() => {
+    const AWSProfile = context.globalState.get("AWSProfile") as string;
+    const workingDirectory = dirname(vscode.window.activeTextEditor.document.fileName);
+    vscode.window.showInformationMessage(`Running terraform init in current document directory: ${workingDirectory}`);
+    const result = await executeTerraformInit(workingDirectory, AWSProfile);
+    if (result) {
+      vscode.window.showErrorMessage("Failed to run `terraform init`. Either an authorization issue or failed to load one of the providers");
+      return; 
+    }
+    vscode.window.showInformationMessage(`Completed \`terraform init\` execution successfully: ${workingDirectory}`);
+  });
+}
+
+function createSwitchAWSProfileCmd(context) {
+  return vscode.commands.registerCommand('extension.switchAWSProfile', async () => {
+    const selectedAWSProfile = await vscode.window.showQuickPick(getAWSProfiles());
+    context.globalState.update("AWSProfile", selectedAWSProfile || "default");
+  });
+}
+
+function createEditSSMKeyCmd(context) {
+  return vscode.commands.registerCommand('extension.editSSMKey', async (ssmKeyPath) => {
     const AWSProfile = context.globalState.get("AWSProfile") as string;
     vscode.window.showInformationMessage(`AWSProfile: ${AWSProfile}; Loading SSM key: ${ssmKeyPath}`);
     let Parameter = null, parameterValue = null;
@@ -38,25 +70,4 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(`Saved SSM key: ${ssmKeyPath} successfully`);
     }
   });
-  let switchAWSProfile = vscode.commands.registerCommand('extension.switchAWSProfile', async () => {
-    const selectedAWSProfile = await vscode.window.showQuickPick(getAWSProfiles());
-    context.globalState.update("AWSProfile", selectedAWSProfile || "default");
-  });
-  let executeTerraformInitCmd = vscode.commands.registerCommand('extension.executeTerraformInit', async() => {
-    const AWSProfile = context.globalState.get("AWSProfile") as string;
-    const workingDirectory = dirname(vscode.window.activeTextEditor.document.fileName);
-    vscode.window.showInformationMessage(`Running terraform init in current document directory: ${workingDirectory}`);
-    const result = await executeTerraformInit(workingDirectory, AWSProfile);
-    if (result) {
-      vscode.window.showErrorMessage("Failed to run `terraform init`. Either an authorization issue or failed to load one of the providers");
-      return; 
-    }
-    vscode.window.showInformationMessage(`Completed \`terraform init\` execution successfully: ${workingDirectory}`);
-  });
-
-  context.subscriptions.push(vscode.languages.registerCodeLensProvider(documentSelector, new SSMKeyCodeLensProvider(context)));
-  context.subscriptions.push(switchAWSProfile, editSSMKeyCmd, executeTerraformInitCmd);
-}
-
-export function deactivate() {
 }
