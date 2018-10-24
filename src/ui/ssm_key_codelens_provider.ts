@@ -33,7 +33,11 @@ async function getAndSetValueFromResource(resource: TFResource, document, awsPro
   if (!storeValue) {
     const resourceObj: ShowResourceResult = await showResource(resource.ResourceName, dirname(document.fileName), awsProfile);
     if (resourceObj.Error === ShowResourceError.NoTerraformInstalled) {
-      extensionContext
+      vscode.window.showErrorMessage(`The extension vscode-terraform-aws-ssm must have terraform CLI installed to work properly`);
+    } else if (resourceObj.Error === ShowResourceError.FailedToLoadBackend) {
+      vscode.window.showErrorMessage(`You must run terraform init on the directory in order for Edit SSM Key to work`);
+    } else {
+      vscode.window.showErrorMessage(`Current profile ${awsProfile} has no permissions to load terraform state.`);
     }
     storeValue = resourceObj.Properties.get(resource.KeyName);
     extensionContext.globalState.update(storeInKey, storeValue);

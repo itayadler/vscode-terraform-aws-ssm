@@ -1,6 +1,4 @@
 'use strict';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import SSMKeyCodeLensProvider from './ui/ssm_key_codelens_provider';
 import { getAWSProfiles, getSSMParameter, putSSMParameter } from './aws_api';
@@ -10,12 +8,18 @@ const documentSelector: vscode.DocumentSelector = [
   { language: "terraform", scheme: "untitled" }
 ];
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   let editSSMKeyCmd = vscode.commands.registerCommand('extension.editSSMKey', async (ssmKeyPath) => {
     const AWSProfile = context.globalState.get("AWSProfile") as string;
-    const { Parameter } = await getSSMParameter(AWSProfile, { Name: ssmKeyPath, WithDecryption: true });
+    vscode.window.showInformationMessage(`AWSProfile: ${AWSProfile}; Loading SSM key: ${ssmKeyPath}`);
+    let Parameter = null;
+    try {
+      const result = await getSSMParameter(AWSProfile, { Name: ssmKeyPath, WithDecryption: true });
+      Parameter = result.Parameter;
+    } catch(ex) {
+      vscode.window.showErrorMessage(`Failed to get SSM Parameter in path ${ssmKeyPath}. Make sure you've selected the correct AWSProfile.`);
+      return;
+    }
     const newValue = await vscode.window.showInputBox({ value: Parameter.Value });
     if (!!newValue && newValue !== Parameter.Value) {
       await putSSMParameter(AWSProfile, {
@@ -24,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
         Value: newValue,
         Type: Parameter.Type
       });
+      vscode.window.showInformationMessage(`Saved SSM key: ${ssmKeyPath} successfully`);
     }
   });
   let switchAWSProfile = vscode.commands.registerCommand('extension.switchAWSProfile', async () => {
@@ -35,6 +40,5 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(switchAWSProfile, editSSMKeyCmd);
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {
 }
