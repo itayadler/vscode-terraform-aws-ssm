@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { extractSSMKeysFromFile } from '../tf_ssm_file_parser';
-import { showResource, ShowResourceResult, ShowResourceError } from '../tf_state_api';
+import { showResource, ShowResourceResult, TerraformError } from '../tf_state_api';
 import { dirname } from 'path';
 import * as bluebird from 'bluebird';
 
@@ -32,12 +32,17 @@ async function getAndSetValueFromResource(resource: TFResource, document, awsPro
   let storeValue = extensionContext.globalState.get(storeInKey);
   if (!storeValue) {
     const resourceObj: ShowResourceResult = await showResource(resource.ResourceName, dirname(document.fileName), awsProfile);
-    if (resourceObj.Error === ShowResourceError.NoTerraformInstalled) {
-      vscode.window.showErrorMessage(`The extension vscode-terraform-aws-ssm must have terraform CLI installed to work properly`);
-    } else if (resourceObj.Error === ShowResourceError.FailedToLoadBackend) {
-      vscode.window.showErrorMessage(`You must run terraform init on the directory in order for Edit SSM Key to work`);
-    } else {
-      vscode.window.showErrorMessage(`Current profile ${awsProfile} has no permissions to load terraform state.`);
+    if (resourceObj.Error) {
+      if (resourceObj.Error === TerraformError.NoTerraformInstalled) {
+        vscode.window.showErrorMessage(`The extension vscode-terraform-aws-ssm must have terraform CLI installed to work properly`);
+      } else if (resourceObj.Error === TerraformError.FailedToLoadBackend) {
+        vscode.window.showErrorMessage(`You must run terraform init on the directory in order for Edit SSM Key to work`);
+      } else if (resourceObj.Error === TerraformError.EmptyResponse) {
+        vscode.window.showErrorMessage(`terraform state show ${resource.ResourceName} returned an empty response`);
+      } else {
+        vscode.window.showErrorMessage(`Current profile ${awsProfile} has no permissions to load terraform state.`);
+      }
+      throw new Error("Stop SSMCodeLensProvider parsing step due to error");
     }
     storeValue = resourceObj.Properties.get(resource.KeyName);
     extensionContext.globalState.update(storeInKey, storeValue);
@@ -69,9 +74,9 @@ export default class SSMKeyCodeLensProvider implements vscode.CodeLensProvider, 
 
   async provideCodeLenses(document: vscode.TextDocument, _token: vscode.CancellationToken): Promise<vscode.CodeLens[] | null> {
     let items: vscode.CodeLens[] = [];
+    const AWSProfile = this.extensionContext.globalState.get("AWSProfile") as string;
     const ssmKeys = extractSSMKeysFromFile(document.getText());
     await bluebird.map(ssmKeys, async key => {
-      const AWSProfile = this.extensionContext.globalState.get("AWSProfile") as string;
       const enrichSSMKeyValue = await enrichSSMKeyPath(key.Path, document, AWSProfile, this.extensionContext);
       let editSSMKey: vscode.Command = {
         command: 'extension.editSSMKey',

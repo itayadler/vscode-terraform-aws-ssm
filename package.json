@@ -2,14 +2,15 @@
   "name": "terraform-ssm",
   "displayName": "vscode-terraform-aws-ssm",
   "description": "VSCode extension to easily view/edit AWS SSM keys",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "itayadler",
+  "repository": "https://github.com/itayadler/vscode-terraform-aws-ssm",
   "engines": {
     "vscode": "^1.28.0"
   },
   "categories": [
     "Other",
-    "Languages"
+    "Programming Languages"
   ],
   "activationEvents": [
     "onLanguage:terraform"
@@ -19,7 +20,11 @@
     "commands": [
       {
         "command": "extension.switchAWSProfile",
-        "title": "terraform-ssm: Switch AWS Profile"
+        "title": "vscode-terraform-aws-ssm: Switch AWS Profile"
+      },
+      {
+        "command": "extension.executeTerraformInit",
+        "title": "vscode-terraform-aws-ssm: Execute `terraform init` in the current directory of the TF file you're editing"
       }
     ]
   },
