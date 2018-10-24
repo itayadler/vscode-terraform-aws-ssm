@@ -18,7 +18,7 @@ export async function showResource(resourceName, workingDirectory, awsProfile = 
     return { Properties: resourceProperties, Error: ShowResourceError.NoTerraformInstalled };
   }
   shell.cd(workingDirectory);
-  shell.env["TF_LOG"] = "TRACE";
+  // shell.env["TF_LOG"] = "TRACE";
   shell.env["AWS_PROFILE"] = awsProfile;
   const { code, stdout, stderr } = shell.exec(`terraform state show ${resourceName}`);
   if (code === 0) {

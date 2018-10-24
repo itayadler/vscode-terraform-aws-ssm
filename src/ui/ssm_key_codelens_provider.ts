@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { extractSSMKeysFromFile } from '../tf_ssm_file_parser';
-import { showResource, ShowResourceResult } from '../tf_state_api';
+import { showResource, ShowResourceResult, ShowResourceError } from '../tf_state_api';
 import { dirname } from 'path';
 import * as bluebird from 'bluebird';
 
@@ -32,6 +32,9 @@ async function getAndSetValueFromResource(resource: TFResource, document, awsPro
   let storeValue = extensionContext.globalState.get(storeInKey);
   if (!storeValue) {
     const resourceObj: ShowResourceResult = await showResource(resource.ResourceName, dirname(document.fileName), awsProfile);
+    if (resourceObj.Error === ShowResourceError.NoTerraformInstalled) {
+      extensionContext
+    }
     storeValue = resourceObj.Properties.get(resource.KeyName);
     extensionContext.globalState.update(storeInKey, storeValue);
   }
@@ -42,8 +45,6 @@ function getResourceFromResourceString(resourceString) {
   let resourceParts = resourceString.split(".");
   //note(itay): We don't need the last part as it's a key from the resource
   const key = resourceParts.pop();
-  //note(itay): We don't need the first part as it's the data scope in TF.
-  // resourceParts.shift();
   return { ResourceName: resourceParts.join("."), KeyName: key };
 }
 
@@ -53,7 +54,6 @@ export default class SSMKeyCodeLensProvider implements vscode.CodeLensProvider, 
 
   constructor(_extensionContext) {
     this.extensionContext = _extensionContext;
-    this.registerCodeLensProvider();
   }
 
   dispose() {
@@ -82,12 +82,5 @@ export default class SSMKeyCodeLensProvider implements vscode.CodeLensProvider, 
     }, { concurrency: 1 });
 
     return items;
-  }
-
-  private registerCodeLensProvider() {
-    this.codeLensRegistrationHandle = vscode.languages.registerCodeLensProvider([
-      { scheme: 'file' },
-      { scheme: 'untitled' },
-    ], this);
   }
 }

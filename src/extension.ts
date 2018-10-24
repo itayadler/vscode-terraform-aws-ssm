@@ -5,6 +5,11 @@ import * as vscode from 'vscode';
 import SSMKeyCodeLensProvider from './ui/ssm_key_codelens_provider';
 import { getAWSProfiles, getSSMParameter, putSSMParameter } from './aws_api';
 
+const documentSelector: vscode.DocumentSelector = [
+  { language: "terraform", scheme: "file" },
+  { language: "terraform", scheme: "untitled" }
+];
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -12,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     const AWSProfile = context.globalState.get("AWSProfile") as string;
     const { Parameter } = await getSSMParameter(AWSProfile, { Name: ssmKeyPath, WithDecryption: true });
     const newValue = await vscode.window.showInputBox({ value: Parameter.Value });
-    if (newValue !== Parameter.Value) {
+    if (!!newValue && newValue !== Parameter.Value) {
       await putSSMParameter(AWSProfile, {
         Name: ssmKeyPath,
         Overwrite: true,
@@ -22,13 +27,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
   let switchAWSProfile = vscode.commands.registerCommand('extension.switchAWSProfile', async () => {
-    // const param = await getParameter("insights-prod", { Name: ssmKeyPath, WithDecryption: true });
-    // vscode.window.showInputBox({ value: ssmKeyPath });
     const selectedAWSProfile = await vscode.window.showQuickPick(getAWSProfiles());
-    context.globalState.update("AWSProfile", selectedAWSProfile || "insights-prod");
+    context.globalState.update("AWSProfile", selectedAWSProfile || "default");
   });
 
-  context.subscriptions.push(switchAWSProfile, editSSMKeyCmd, new SSMKeyCodeLensProvider(context));
+  context.subscriptions.push(vscode.languages.registerCodeLensProvider(documentSelector, new SSMKeyCodeLensProvider(context)));
+  context.subscriptions.push(switchAWSProfile, editSSMKeyCmd);
 }
 
 // this method is called when your extension is deactivated

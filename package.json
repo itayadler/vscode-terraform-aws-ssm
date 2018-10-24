@@ -11,8 +11,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.editSSMKey",
-    "onCommand:extension.switchAWSProfile"
+    "onLanguage:terraform"
   ],
   "main": "./out/extension",
   "contributes": {
