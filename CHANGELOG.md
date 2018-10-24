@@ -1,3 +1,7 @@
+# 0.2.1
+
+- Major bug fix for terraform init / terraform state load
+
 # 0.2.0
 Bug fixes:
 - Showing only one error message when the extension fails to load SSM path state from terraform.

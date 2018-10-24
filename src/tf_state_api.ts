@@ -14,13 +14,13 @@ export interface ShowResourceResult {
   Error?: TerraformError;
 }
 
-export async function executeTerraformInit(workingDirectory, awsProfile = "default"): Promise<TerraformError | null> {
+export function executeTerraformInit(workingDirectory, awsProfile = "default") {
   if (!shell.which('terraform')) {
     return TerraformError.NoTerraformInstalled;
   }
   shell.cd(workingDirectory);
   shell.env["AWS_PROFILE"] = awsProfile;
-  await new Promise((resolve, reject)=> {
+  return new Promise((resolve, reject)=> {
     shell.exec(`terraform init`, (code, stdout, stderr)=> {
       if (code !== 0) {
         resolve(TerraformError.NotAuthorized);
@@ -31,7 +31,7 @@ export async function executeTerraformInit(workingDirectory, awsProfile = "defau
   });
 }
 
-export async function showResource(resourceName, workingDirectory, awsProfile = "default"): Promise<ShowResourceResult> {
+export function showResource(resourceName, workingDirectory, awsProfile = "default") {
   const resourceProperties = new Map<string, string>();
   if (!shell.which('terraform')) {
     return { Properties: resourceProperties, Error: TerraformError.NoTerraformInstalled };
@@ -39,7 +39,7 @@ export async function showResource(resourceName, workingDirectory, awsProfile = 
   shell.cd(workingDirectory);
   // shell.env["TF_LOG"] = "TRACE";
   shell.env["AWS_PROFILE"] = awsProfile;
-  await new Promise((resolve, reject)=> {
+  return new Promise((resolve, reject)=> {
     shell.exec(`terraform state show ${resourceName}`, (code, stdout, stderr)=> {
       if (code === 0) {
         if (!stdout) {

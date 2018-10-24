@@ -31,7 +31,7 @@ async function getAndSetValueFromResource(resource: TFResource, document, awsPro
   const storeInKey = `${resource.ResourceName}.${resource.KeyName}`;
   let storeValue = extensionContext.globalState.get(storeInKey);
   if (!storeValue) {
-    const resourceObj: ShowResourceResult = await showResource(resource.ResourceName, dirname(document.fileName), awsProfile);
+    const resourceObj: ShowResourceResult = await showResource(resource.ResourceName, dirname(document.fileName), awsProfile) as ShowResourceResult;
     if (resourceObj.Error) {
       if (resourceObj.Error === TerraformError.NoTerraformInstalled) {
         vscode.window.showErrorMessage(`The extension vscode-terraform-aws-ssm must have terraform CLI installed to work properly`);
