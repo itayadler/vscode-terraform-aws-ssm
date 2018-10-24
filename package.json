@@ -1,8 +1,8 @@
 {
   "name": "terraform-ssm",
-  "displayName": "vscode-terraform-aws-ssm",
+  "displayName": "VSCode Terraform AWS SSM",
   "description": "VSCode extension to easily view/edit AWS SSM keys",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "itayadler",
   "repository": "https://github.com/itayadler/vscode-terraform-aws-ssm",
   "engines": {

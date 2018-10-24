@@ -1,3 +1,7 @@
+# 0.2.2
+Fixes:
+- `Edit SSM Key`: Add confirmation UI.
+
 # 0.2.1
 
 - Major bug fix for terraform init / terraform state load
