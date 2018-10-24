@@ -5,17 +5,26 @@ import { resolve } from 'path';
 import { homedir } from 'os';
 import { readFileSync } from 'fs';
 
+function getAWSCredentialsAsObject() {
+  return parse(readFileSync(resolve(homedir(), '.aws/credentials'), 'utf-8'));
+}
+
 function readAWSRegionFromConfig(profile) {
-  const iniFile = parse(readFileSync(resolve(homedir(), '.aws/credentials'), 'utf-8'))
+  const iniFile = getAWSCredentialsAsObject();
   return iniFile[profile].region;
 }
 
-export function getParameter(profile: string, params: GetParameterRequest) {
+export function getAWSProfiles() {
+  const iniFile = getAWSCredentialsAsObject();
+  return Object.keys(iniFile);
+}
+
+export function getSSMParameter(profile: string, params: GetParameterRequest) {
   setProfile(profile);
   return new SSM().getParameter(params).promise();
 }
 
-export function putParameter(profile: string, params: PutParameterRequest) {
+export function putSSMParameter(profile: string, params: PutParameterRequest) {
   setProfile(profile);
   return new SSM().putParameter(params).promise();
 }

@@ -20,7 +20,7 @@ function mapAWSSSMKey(item: AstItem): SSMKeyInFile {
   const [nameItem] = list.Items
     .filter((item: AstItem) => item.Keys.length === 1 && item.Keys[0].Token.Text === 'name');
   return {
-    Path: nameItem.Val.Token.Text,
+    Path: nameItem.Val.Token.Text.replace(new RegExp('"', 'g'), '').replace(new RegExp("'", 'g'), ''),
     Line: nameItem.Val.Token.Pos.Line,
     Column: nameItem.Val.Token.Pos.Column,
     Offset: nameItem.Val.Token.Pos.Offset
