@@ -70,6 +70,7 @@ export function showResource(resource: TFResource, cache: TFLocalResourceCache, 
       shell.exec(`terraform state show ${resource.ResourceName}`, (code, stdout, stderr) => {
         if (code === 0) {
           if (!stdout) {
+            delete showResourcePromises[resource.ResourceName];
             return resolve({
               Properties: resourceProperties, Error: TerraformError.EmptyResponse,
               Resource: resource
@@ -79,14 +80,17 @@ export function showResource(resource: TFResource, cache: TFLocalResourceCache, 
           Object.keys(iniProperties)
             .forEach(key => resourceProperties[key] = iniProperties[key]);
           cache.set<object>(resource.ResourceName, resourceProperties);
+          delete showResourcePromises[resource.ResourceName];
           resolve({ Properties: resourceProperties, Resource: resource });
         } else {
           if (stderr.toString().indexOf("Failed to load backend") > -1) {
+            delete showResourcePromises[resource.ResourceName];
             resolve({
               Properties: resourceProperties, Error: TerraformError.FailedToLoadBackend,
               Resource: resource
             });
           } else if (stderr.toString().indexOf("Failed to load state: AccessDenied") > -1) {
+            delete showResourcePromises[resource.ResourceName];
             resolve({
               Properties: resourceProperties, Error: TerraformError.NotAuthorized,
               Resource: resource

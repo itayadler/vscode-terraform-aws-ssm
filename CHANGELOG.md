@@ -1,3 +1,9 @@
+# 0.3.0
+- Fix bad state after `terraform init` where resource can't
+be fetched.
+- Add create flow for a key with selection of SSM Key Type.
+- Update README.md with demo.gif
+
 # 0.2.5
 - Add known issues to the project README.
 - Change Edit SSM Key position to be on top of `aws_ssm_parameter`.
