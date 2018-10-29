@@ -1,9 +1,14 @@
+# 0.2.5
+- Add known issues to the project README.
+- Change Edit SSM Key position to be on top of `aws_ssm_parameter`.
+- Major refactor to codelens provider, fixed codelens to update
+on each change to the file.
+
 # 0.2.2
 Fixes:
 - `Edit SSM Key`: Add confirmation UI.
 
 # 0.2.1
-
 - Major bug fix for terraform init / terraform state load
 
 # 0.2.0

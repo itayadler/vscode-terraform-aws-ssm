@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { dirname } from 'path';
-import { executeTerraformInit } from '../tf_state_api';
+import { executeTerraformInit } from '../api/tf_state_api';
 
 export default function createTerraformInitCmd(context) {
   return vscode.commands.registerCommand('extension.executeTerraformInit', async () => {

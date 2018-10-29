@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getSSMParameter, putSSMParameter } from '../aws_api';
+import { getSSMParameter, putSSMParameter } from '../api/aws_api';
 
 export default function createEditSSMKeyCmd(context) {
   return vscode.commands.registerCommand('extension.editSSMKey', async (ssmKeyPath) => {

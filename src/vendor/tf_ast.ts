@@ -1,4 +1,6 @@
-import { count } from "./helpers/helpers";
+// note(itay): This is copied from https://github.com/mauve/vscode-terraform
+// modified to get this to work with TypeScript 2.7+
+import { count } from "../helpers/helpers";
 
 export enum NodeType {
   Unknown = "UNKNOWN",

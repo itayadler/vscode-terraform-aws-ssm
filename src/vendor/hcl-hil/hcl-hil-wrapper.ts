@@ -1,4 +1,4 @@
-import { Ast } from "../ast";
+import { Ast } from "../tf_ast";
 const hcl = require("./hcl-hil");
 
 export class ParseError extends Error {
