@@ -24,7 +24,7 @@ class SSMKeyCodeLens extends vscode.CodeLens {
 
     return Promise.resolve({
       command: 'extension.editSSMKey',
-      title: 'Edit SSM Key',
+      title: 'Add/Edit SSM Key',
       arguments: [ssmKeyPath.Path]
     } as vscode.Command);
   }
