@@ -2,9 +2,15 @@
 
 ![VSCode Terraform AWS SSM](https://raw.githubusercontent.com/itayadler/vscode-terraform-aws-ssm/master/demo.gif)
 
-Easily view/edit SSM keys right in your terraform files. The extension detects
-usage of `aws_ssm_parameter` and augments an Edit SSM Key command on top of each key it 
+add/view/edit SSM keys right in your terraform files. The extension detects
+usage of `aws_ssm_parameter` and augments an Add/Edit SSM Key command on top of each key it 
 finds in a file.
+
+# Features
+
+- Add/Edit SSM Key
+- Switch AWS profiles command (based on `~/.aws/credentials)
+- Execute `terraform init` command in current file working directory.
 
 # Prequisites 
 
