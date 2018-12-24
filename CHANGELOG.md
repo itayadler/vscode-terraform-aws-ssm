@@ -1,3 +1,7 @@
+# 0.3.2
+- Add error message when switching to an AWS profile without
+a region.
+
 # 0.3.1
 - Fix bad state after `terraform init` where resource can't
 be fetched.

@@ -9,7 +9,7 @@ function getAWSCredentialsAsObject() {
   return parse(readFileSync(resolve(homedir(), '.aws/credentials'), 'utf-8'));
 }
 
-function readAWSRegionFromConfig(profile) {
+export function readAWSRegionFromConfig(profile) {
   const iniFile = getAWSCredentialsAsObject();
   return iniFile[profile].region;
 }
