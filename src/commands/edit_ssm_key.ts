@@ -4,6 +4,11 @@ import { getSSMParameter, putSSMParameter } from '../api/aws_api';
 export default function createEditSSMKeyCmd(context) {
   return vscode.commands.registerCommand('extension.editSSMKey', async (ssmKeyPath) => {
     const AWSProfile = context.globalState.get("AWSProfile") as string;
+    const placeholder = `Current AWSProfile is \`${AWSProfile}\`. Continue?`;
+    const continueInCurrentProfile = await vscode.window.showQuickPick(['Yes', 'No'], { placeHolder: placeholder });
+    if (continueInCurrentProfile === 'No') {
+      return;
+    }
     vscode.window.showInformationMessage(`AWSProfile: ${AWSProfile}; Loading SSM key: ${ssmKeyPath}`);
     let Parameter = null, parameterValue = null, doesKeyExist = true;
     try {

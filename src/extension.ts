@@ -14,8 +14,8 @@ export function activate(context: vscode.ExtensionContext) {
   const editSSMKeyCmd = createEditSSMKeyCmd(context);
   const switchAWSProfileCmd = createSwitchAWSProfileCmd(context);
   const executeTerraformInitCmd = createTerraformInitCmd(context);
-  context.subscriptions.push(vscode.languages.registerCodeLensProvider(documentSelector, new SSMKeyCodeLensProvider(context)));
-  context.subscriptions.push(switchAWSProfileCmd, editSSMKeyCmd, executeTerraformInitCmd);
+  const ssmCodeLensProvider = vscode.languages.registerCodeLensProvider(documentSelector, new SSMKeyCodeLensProvider(context));
+  context.subscriptions.push(ssmCodeLensProvider, switchAWSProfileCmd, editSSMKeyCmd, executeTerraformInitCmd);
 }
 
 export function deactivate() {

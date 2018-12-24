@@ -1,3 +1,6 @@
+# 0.3.3
+- Add AWS region confirmation quickpick before add/edit SSM key.
+
 # 0.3.2
 - Add error message when switching to an AWS profile without
 a region.
