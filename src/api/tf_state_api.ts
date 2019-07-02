@@ -44,7 +44,7 @@ export function showResource(resource: TFResource, cache: TFLocalResourceCache, 
   }
 
   return showResourcePromises[resource.ResourceName] = new Promise<ShowResourceResult>((resolve, reject) => {
-    const cachedResourceProperties = cache.get<object>(resource.ResourceName);
+    const cachedResourceProperties = cache.get<object>(resource.getKeyForCache(awsProfile));
     if (cachedResourceProperties && Object.keys(cachedResourceProperties).length > 0) {
       return resolve({
         Properties: cachedResourceProperties, Resource: resource
@@ -79,7 +79,7 @@ export function showResource(resource: TFResource, cache: TFLocalResourceCache, 
           const iniProperties = parse(stdout);
           Object.keys(iniProperties)
             .forEach(key => resourceProperties[key] = iniProperties[key]);
-          cache.set<object>(resource.ResourceName, resourceProperties);
+          cache.set<object>(resource.getKeyForCache(awsProfile), resourceProperties);
           delete showResourcePromises[resource.ResourceName];
           resolve({ Properties: resourceProperties, Resource: resource });
         } else {

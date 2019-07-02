@@ -1,3 +1,6 @@
+# 0.3.4
+- Fix cache bug, now a resource is scoped to the AWSProfile.
+
 # 0.3.3
 - Add AWS region confirmation quickpick before add/edit SSM key.
 

@@ -13,6 +13,10 @@ export default class TFResource {
     return `${this.ResourceName}.${this.KeyName}`;
   }
 
+  getKeyForCache(awsProfile) {
+    return `${awsProfile}-${this.ResourceName}.${this.KeyName}`;
+  }
+
   getResourceType() {
     return this.ResourceType;
   }
