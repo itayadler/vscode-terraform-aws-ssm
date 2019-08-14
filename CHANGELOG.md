@@ -1,4 +1,4 @@
-# 0.3.5
+# 0.3.5-0.3.6
 - Improve `terraform` binary detection by switching from
 `which` to `type`
 

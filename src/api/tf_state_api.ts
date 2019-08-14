@@ -65,52 +65,53 @@ export function showResource(resource: TFResource, cache: TFLocalResourceCache, 
     }
 
     const resourceProperties = {};
-    if (!shell.which('terraform')) {
+    shellType('terraform').then(()=> {
+      if (resource.ResourceType !== 'data') {
+        return resolve({
+          Properties: resourceProperties, Error: TerraformError.UnsupportedResourceType,
+          Resource: resource
+        });
+      }
+      shell.cd(workingDirectory);
+      // shell.env["TF_LOG"] = "TRACE";
+      shell.env["AWS_PROFILE"] = awsProfile;
+      return new Promise<ShowResourceResult>((resolve, reject) => {
+        shell.exec(`terraform state show ${resource.ResourceName}`, (code, stdout, stderr) => {
+          if (code === 0) {
+            if (!stdout) {
+              delete showResourcePromises[resource.ResourceName];
+              return resolve({
+                Properties: resourceProperties, Error: TerraformError.EmptyResponse,
+                Resource: resource
+              });
+            }
+            const iniProperties = parse(stdout);
+            Object.keys(iniProperties)
+              .forEach(key => resourceProperties[key] = iniProperties[key]);
+            cache.set<object>(resource.getKeyForCache(awsProfile), resourceProperties);
+            delete showResourcePromises[resource.ResourceName];
+            resolve({ Properties: resourceProperties, Resource: resource });
+          } else {
+            if (stderr.toString().indexOf("Failed to load backend") > -1) {
+              delete showResourcePromises[resource.ResourceName];
+              resolve({
+                Properties: resourceProperties, Error: TerraformError.FailedToLoadBackend,
+                Resource: resource
+              });
+            } else if (stderr.toString().indexOf("Failed to load state: AccessDenied") > -1) {
+              delete showResourcePromises[resource.ResourceName];
+              resolve({
+                Properties: resourceProperties, Error: TerraformError.NotAuthorized,
+                Resource: resource
+              });
+            }
+          }
+        });
+      }).then((result) => resolve(result));
+    }).catch(()=> {
       return resolve({
         Properties: resourceProperties, Error: TerraformError.NoTerraformInstalled, Resource: resource
       });
-    }
-    if (resource.ResourceType !== 'data') {
-      return resolve({
-        Properties: resourceProperties, Error: TerraformError.UnsupportedResourceType,
-        Resource: resource
-      });
-    }
-    shell.cd(workingDirectory);
-    // shell.env["TF_LOG"] = "TRACE";
-    shell.env["AWS_PROFILE"] = awsProfile;
-    return new Promise<ShowResourceResult>((resolve, reject) => {
-      shell.exec(`terraform state show ${resource.ResourceName}`, (code, stdout, stderr) => {
-        if (code === 0) {
-          if (!stdout) {
-            delete showResourcePromises[resource.ResourceName];
-            return resolve({
-              Properties: resourceProperties, Error: TerraformError.EmptyResponse,
-              Resource: resource
-            });
-          }
-          const iniProperties = parse(stdout);
-          Object.keys(iniProperties)
-            .forEach(key => resourceProperties[key] = iniProperties[key]);
-          cache.set<object>(resource.getKeyForCache(awsProfile), resourceProperties);
-          delete showResourcePromises[resource.ResourceName];
-          resolve({ Properties: resourceProperties, Resource: resource });
-        } else {
-          if (stderr.toString().indexOf("Failed to load backend") > -1) {
-            delete showResourcePromises[resource.ResourceName];
-            resolve({
-              Properties: resourceProperties, Error: TerraformError.FailedToLoadBackend,
-              Resource: resource
-            });
-          } else if (stderr.toString().indexOf("Failed to load state: AccessDenied") > -1) {
-            delete showResourcePromises[resource.ResourceName];
-            resolve({
-              Properties: resourceProperties, Error: TerraformError.NotAuthorized,
-              Resource: resource
-            });
-          }
-        }
-      });
-    }).then((result) => resolve(result));
+    });
   });
 }
