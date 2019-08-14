@@ -20,19 +20,32 @@ export interface ShowResourceResult {
   Resource: TFResource;
 }
 
+function shellType(programName) {
+  return new Promise((resolve,reject)=> {
+    shell.exec(`type ${programName}`, (code, stdout, stderr)=> {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
+  });
+}
+
 export function executeTerraformInit(workingDirectory, awsProfile = "default") {
-  if (!shell.which('terraform')) {
-    return TerraformError.NoTerraformInstalled;
-  }
   shell.cd(workingDirectory);
   shell.env["AWS_PROFILE"] = awsProfile;
   return new Promise((resolve, reject) => {
-    shell.exec(`terraform init`, (code, stdout, stderr) => {
-      if (code !== 0) {
-        resolve(TerraformError.NotAuthorized);
-      } else {
-        resolve(null);
-      }
+    shellType('terraform').then(()=> {
+      shell.exec(`terraform init`, (code, stdout, stderr) => {
+        if (code !== 0) {
+          resolve(TerraformError.NotAuthorized);
+        } else {
+          resolve(null);
+        }
+      });
+    }).catch(()=> {
+      resolve(TerraformError.NoTerraformInstalled);
     });
   });
 }

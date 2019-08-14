@@ -1,3 +1,7 @@
+# 0.3.5
+- Improve `terraform` binary detection by switching from
+`which` to `type`
+
 # 0.3.4
 - Fix cache bug, now a resource is scoped to the AWSProfile.
 
